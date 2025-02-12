@@ -1,0 +1,101 @@
+#include <stdio.h>
+#include <stdlib.h>
+#define MAX_FRAMES 3  
+struct Node {
+    int page;
+    struct Node* prev;
+    struct Node* next;
+};
+struct Node* createNode(int page) {
+    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
+    newNode->page = page;
+    newNode->prev = newNode->next = NULL;
+    return newNode;
+}
+void removeLRU(struct Node** head, struct Node** tail) {
+    if (*tail == NULL) {
+        return;
+    }
+    struct Node* temp = *tail;
+    if (*head == *tail) {
+        *head = *tail = NULL;
+    } else {
+        *tail = (*tail)->prev;
+        (*tail)->next = NULL;
+    }
+    
+    free(temp);
+}
+void moveToFront(struct Node** head, struct Node** tail, struct Node* node) {
+    if (*head == node) {
+        return;  
+    }
+    if (node->prev != NULL) {
+        node->prev->next = node->next;
+    }
+    if (node->next != NULL) {
+        node->next->prev = node->prev;
+    }
+    if (*tail == node) {
+        *tail = node->prev;
+    }
+    node->next = *head;
+    node->prev = NULL;
+    if (*head != NULL) {
+        (*head)->prev = node;
+    }
+    *head = node;
+    
+    if (*tail == NULL) {
+        *tail = node;
+    }
+}
+void lru(int pages[], int num_pages) {
+    struct Node* head = NULL;  
+    struct Node* tail = NULL;  
+    int page_faults = 0;
+    printf("Page references: ");
+for (int i = 0; i < num_pages; i++) {
+        printf("%d ", pages[i]);
+    }
+    printf("\n");
+for (int i = 0; i < num_pages; i++) {
+        int page = pages[i];
+        struct Node* current = head;
+        int found = 0;
+        while (current != NULL) {
+            if (current->page == page) {
+                found = 1;  
+                moveToFront(&head, &tail, current);  
+                break;
+            }
+            current = current->next;
+        }
+if (!found) {
+            if (head == NULL) {
+                head = tail = createNode(page);
+            } else {
+                if (head != tail) {
+                    removeLRU(&head, &tail);
+                }
+                struct Node* newPage = createNode(page);
+                moveToFront(&head, &tail, newPage);
+            }
+            page_faults++;
+        }
+        printf("Current frames: ");
+        struct Node* temp = head;
+        while (temp != NULL) {
+            printf("%d ", temp->page);
+            temp = temp->next;
+        }
+        printf("\n");
+    }
+ printf("Total page faults: %d\n", page_faults);
+}
+int main() {
+   int pages[] = {1, 2, 3, 1, 2, 4, 5};
+    int num_pages = sizeof(pages) / sizeof(pages[0]);
+    lru(pages, num_pages);
+return 0;
+}
