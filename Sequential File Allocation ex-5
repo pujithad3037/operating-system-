@@ -1,0 +1,24 @@
+#include <stdio.h> 
+#include <stdlib.h>
+#define MAX_BLOCKS 10
+void sequentialAllocation(int blocks[], int num_blocks, int file[], int file_size) {
+    int i, j;
+    int block_num = 0;
+    printf("File allocation starts:\n");
+    for (i = 0; i < file_size; i++) {
+        if (block_num < num_blocks) {
+            blocks[block_num] = file[i];
+            printf("File block %d is allocated to disk block %d\n", file[i], block_num);
+            block_num++;
+        } else {
+            printf("Disk is full. Cannot allocate file block %d\n", file[i]);
+        }
+    }
+}
+int main() {
+    int blocks[MAX_BLOCKS] = {-1};
+    int file[] = {10, 20, 30, 40, 50, 60};
+    int file_size = sizeof(file) / sizeof(file[0]);
+     sequentialAllocation(blocks, MAX_BLOCKS, file, file_size);
+   return 0;
+}
