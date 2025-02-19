@@ -1,0 +1,77 @@
+#include <stdio.h>
+#include <string.h>
+#define MAX_DIRS 5
+#define MAX_FILES 5
+#define MAX_NAME_LEN 50
+struct File {
+    char name[MAX_NAME_LEN];
+    int size;
+};
+struct Directory {
+    char name[MAX_NAME_LEN];
+    struct File files[MAX_FILES];
+    int fileCount;
+};
+void listFiles(struct Directory dirs[], int dirCount) {
+    for (int i = 0; i < dirCount; i++) {
+        printf("\nDirectory: %s\n", dirs[i].name);
+        for (int j = 0; j < dirs[i].fileCount; j++) {
+            printf("\tFile: %s, Size: %d KB\n", dirs[i].files[j].name, dirs[i].files[j].size);
+        }
+    }
+}
+int main() {
+    struct Directory directories[MAX_DIRS];
+    int dirCount = 0, choice;
+ do {
+        printf("\n1. Create Directory\n2. Add File to Directory\n3. List Directories and Files\n4. Exit\nEnter choice: ");
+        scanf("%d", &choice);
+ switch (choice) {
+            case 1: {
+                if (dirCount < MAX_DIRS) {
+                    printf("Enter directory name: ");
+                    scanf("%s", directories[dirCount].name);
+                    directories[dirCount].fileCount = 0;  // No files initially
+                    dirCount++;
+                } else {
+                    printf("Directory limit reached!\n");
+                }
+                break;
+            }
+            case 2: {
+                char dirName[MAX_NAME_LEN];
+                printf("Enter directory name to add file: ");
+                scanf("%s", dirName);
+                int found = 0;
+                for (int i = 0; i < dirCount; i++) {
+                    if (strcmp(directories[i].name, dirName) == 0) {
+                        if (directories[i].fileCount < MAX_FILES) {
+                            printf("Enter file name: ");
+                            scanf("%s", directories[i].files[directories[i].fileCount].name);
+                            printf("Enter file size (KB): ");
+                            scanf("%d", &directories[i].files[directories[i].fileCount].size);
+                            directories[i].fileCount++;
+                        } else {
+                            printf("Directory is full!\n");
+                        }
+                        found = 1;
+                        break;
+                    }
+                }
+                if (!found) {
+                    printf("Directory not found!\n");
+                }
+                break;
+            }
+            case 3:
+                listFiles(directories, dirCount);
+                break;
+            case 4:
+                printf("Exiting...\n");
+                break;
+            default:
+                printf("Invalid choice! Try again.\n");
+        }
+    } while (choice != 4);
+ return 0;
+}
